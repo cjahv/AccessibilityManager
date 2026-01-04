@@ -3,12 +3,13 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    namespace "com.accessibilitymanager"
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.accessibilitymanager"
         minSdk 18
-        targetSdk 33
+        targetSdk 36
         versionCode 8
         versionName "8"
 
@@ -25,13 +26,20 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
+    lint {
         checkReleaseBuilds false
         abortOnError false
     }
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 dependencies {
+    implementation "androidx.annotation:annotation:1.9.1"
     implementation "dev.rikka.shizuku:api:13.1.0"
     implementation "dev.rikka.shizuku:provider:13.1.0"
 }

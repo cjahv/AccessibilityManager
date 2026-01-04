@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.database.ContentObserver;
 import android.graphics.drawable.Icon;
 import android.os.Build;
@@ -104,7 +105,8 @@ public class daemonService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        sp = getSharedPreferences("data", 0);
+        AppPrefs.migrateIfUnlocked(this);
+        sp = AppPrefs.get(this);
         if (sp.getString("daemon", "").length() == 0) {
             stopSelf();
             return;
@@ -126,8 +128,8 @@ public class daemonService extends Service {
         //发送前台通知
         notification = new Notification.Builder(this)
                 .setAutoCancel(true)
-                .setContentText("猜对了两颗都给你！")
-                .setContentTitle("海绵宝宝，猜猜我有几颗糖~");
+                .setContentText("保活服务运行中")
+                .setContentTitle("无障碍保活中");
         systemService = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -147,7 +149,11 @@ public class daemonService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             notification.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
         }
-        startForeground(1, notification.build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1, notification.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(1, notification.build());
+        }
 
         //先做一次保活
         doDaemon(tmpSettingValue);
